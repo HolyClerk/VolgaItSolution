@@ -42,6 +42,11 @@ public class AccountService : IAccountService
             UserName = request.Username,
         };
 
+        var existingUser = _userManager.FindByNameAsync(request.Username);
+
+        if (existingUser is not null)
+            return Result.Failed("Пользователь с таким именем уже существует.");
+
         var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
@@ -100,7 +105,7 @@ public class AccountService : IAccountService
         return Result<ApplicationUser>.Success(user);
     }
 
-    private async Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? principal)
+    public async Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? principal)
     {
         if (principal is null || principal.Identity is null)
             return null;

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Simbir.Application.Abstractions;
 using Simbir.Core.AccountRequests;
+using Simbir.Core.Entities;
 
 namespace Simbir.RestApi.Controllers;
 
@@ -16,15 +17,16 @@ public class AccountController : ControllerBase
         _accountService = accountService;
     }
 
+    [Authorize]
     [HttpGet("Me")]
     public async Task<ActionResult> GetAccountInfo()
     {
-        var result = await _accountService.SignInAsync(request);
+        var result = await _accountService.GetUserByClaimsAsync(User);
 
-        return result.Succeeded switch
+        return result switch
         {
-            true => Ok(result.Succeeded),
-            false => BadRequest(result.Errors)
+            ApplicationUser => Ok(result),
+            null => BadRequest()
         };
     }
 

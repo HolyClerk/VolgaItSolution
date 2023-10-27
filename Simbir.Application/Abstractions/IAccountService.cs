@@ -2,6 +2,7 @@
 using Simbir.Core.AccountRequests;
 using Simbir.Core.Results;
 using System.Security.Claims;
+using Simbir.Core.Entities;
 
 namespace Simbir.Application.Abstractions;
 
@@ -12,6 +13,5 @@ public interface IAccountService
     // SingUp не возвращает Credentials т.к. клиент после этого должен самостоятельно залогиниться, чтобы получить токен
     Task<Result> SignUpAsync(SignUpRequest request);
     Task<Result> UpdateAsync(UpdateRequest request, ClaimsPrincipal claims);
-
-    //Task<Result<Credentials>> RefreshToken(RefreshTokenRequest request);
+    Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? principal);
 }

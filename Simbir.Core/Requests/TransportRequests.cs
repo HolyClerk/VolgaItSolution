@@ -1,13 +1,13 @@
 ﻿namespace Simbir.Core.Requests;
 
-public class CreateTransportRequest
+public class AddTransportRequest
 {
     public bool CanBeRented { get; set; }
     public string TransportType { get; set; }
     public string Model { get; set; }
     public string Color { get; set; }
-    public string? Identifier { get; set; }
-    public string Description { get; set; }
+    public string Identifier { get; set; }
+    public string? Description { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public double? MinutePrice { get; set; }
@@ -19,8 +19,8 @@ public class UpdateTransportRequest
     public bool CanBeRented { get; set; }
     public string Model { get; set; }
     public string Color { get; set; }
-    public string? Identifier { get; set; }
-    public string Description { get; set; }
+    public string Identifier { get; set; }
+    public string? Description { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public double? MinutePrice { get; set; }
