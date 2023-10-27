@@ -13,7 +13,4 @@ public class SignInRequest
 }
 
 public class SignUpRequest : SignInRequest { }
-public class UpdateRequest : SignInRequest 
-{
-    public string NewPassword { get; set; }
-}
+public class UpdateRequest : SignInRequest { }

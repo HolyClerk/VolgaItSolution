@@ -50,18 +50,22 @@ public class AccountService : IAccountService
         return Result.Success();
     }
 
-    public async Task<Result> UpdateAsync(UpdateRequest request)
+    public async Task<Result> UpdateAsync(UpdateRequest request, ClaimsPrincipal claims)
     {
-        var validationResult = await ValidateSignInAsync(request);
+        var applicationUser = await GetUserByClaimsAsync(claims);
 
-        if (!validationResult.Succeeded)
-            return validationResult.ToNonGenericResult();
+        if (applicationUser is null)
+            return Result.Failed("Непредвиденная ошибка. Claims не найдены.");
 
-        var user = validationResult.Value;
-        var result = await _userManager.ChangePasswordAsync(user, request.Password, request.NewPassword);
+        var hashedPassword = _userManager.PasswordHasher.HashPassword(applicationUser, request.Password);
 
-        if (!result.Succeeded)
-            return Result.Failed(result.Errors.Select(x => x.Description).ToArray());
+        applicationUser.UserName = request.Username;
+        applicationUser.PasswordHash = hashedPassword;
+
+        var identityResult = await _userManager.UpdateAsync(applicationUser);
+
+        if (!identityResult.Succeeded)
+            return Result.Failed(identityResult.Errors.Select(x => x.Description).ToArray());
 
         return Result.Success();
     }

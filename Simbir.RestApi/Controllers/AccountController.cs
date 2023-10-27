@@ -31,6 +31,9 @@ public class AccountController : ControllerBase
     [HttpPost("SignIn")]
     public async Task<ActionResult> SignIn([FromBody] SignInRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var result = await _accountService.SignInAsync(request);
 
         return result.Succeeded switch
@@ -43,6 +46,9 @@ public class AccountController : ControllerBase
     [HttpPost("SignUp")]
     public async Task<ActionResult> SignUp([FromBody] SignUpRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var result = await _accountService.SignUpAsync(request);
 
         return result.Succeeded switch
@@ -56,7 +62,10 @@ public class AccountController : ControllerBase
     [HttpPut("Update")]
     public async Task<ActionResult> Update([FromBody] UpdateRequest request)
     {
-        var result = await _accountService.UpdateAsync(request);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _accountService.UpdateAsync(request, User);
 
         return result.Succeeded switch
         {
