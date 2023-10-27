@@ -14,5 +14,7 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser, IdentityRol
         Database.EnsureCreated();
     }
 
-    public DbSet<ApplicationUser> Users { get; }
+    public DbSet<ApplicationUser> Users { get; private set; }
+    public DbSet<Administrator> Administrators { get; private set; }
+    public DbSet<Transport> Transports { get; private set; }
 }
