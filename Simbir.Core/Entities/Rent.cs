@@ -11,11 +11,12 @@ public class Rent
     [ForeignKey(nameof(Renter))]
     public int RenterId { get; set; }
 
-    [ForeignKey(nameof(RentTransport))]
+    [ForeignKey(nameof(RentedTransport))]
     public int TransportId { get; set; }
 
-    public string RentType { get; set; }
+    public string Type { get; set; }
+    public bool IsRentEnded { get; set; }
 
     public virtual ApplicationUser Renter { get; set; }
-    public virtual Transport RentTransport { get; set; }
+    public virtual Transport RentedTransport { get; set; }
 }
