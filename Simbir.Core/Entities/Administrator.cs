@@ -6,7 +6,7 @@ namespace Simbir.Core.Entities;
 public class Administrator
 {
     [Key]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     [ForeignKey(nameof(User))]
     public long UserId {  get; set; }

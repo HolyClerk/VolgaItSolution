@@ -17,9 +17,9 @@ public class TransportController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult> GetTransport(int id)
+    public async Task<ActionResult> GetTransport(long id)
     {
-        var result = await _transportService.GetTransportAsync(id);
+        var result = await _transportService.GetAsync(id);
 
         return result.Succeeded switch
         {
@@ -32,7 +32,7 @@ public class TransportController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> AddTransport(AddTransportRequest request)
     {
-        var result = await _transportService.AddTransportAsync(request, User);
+        var result = await _transportService.AddAsync(request, User);
 
         return result.Succeeded switch
         {
@@ -43,9 +43,9 @@ public class TransportController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateTransport(int id, UpdateTransportRequest request)
+    public async Task<ActionResult> UpdateTransport(long id, UpdateTransportRequest request)
     {
-        var result = await _transportService.UpdateTransportAsync(id, request, User);
+        var result = await _transportService.UpdateAsync(id, request, User);
 
         return result.Succeeded switch
         {
@@ -56,9 +56,9 @@ public class TransportController : ControllerBase
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult> RemoveTransport(int id)
+    public async Task<ActionResult> RemoveTransport(long id)
     {
-        var result = await _transportService.RemoveTransportAsync(id, User);
+        var result = await _transportService.RemoveAsync(id, User);
 
         return result.Succeeded switch
         {

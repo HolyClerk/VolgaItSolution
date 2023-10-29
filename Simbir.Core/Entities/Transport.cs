@@ -6,7 +6,7 @@ namespace Simbir.Core.Entities;
 public class Transport
 {
     [Key]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     [ForeignKey(nameof(Owner))]
     public long OwnerId { get; set; }

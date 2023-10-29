@@ -31,9 +31,9 @@ public class RentController : ControllerBase
 
     [Authorize]
     [HttpGet("{rentId}")]
-    public async Task<ActionResult> GetRentInfo(int rentId)
+    public async Task<ActionResult> GetRentInfo(long rentId)
     {
-        var result = await _rentService.GetRentAsync(rentId, User);
+        var result = await _rentService.GetAsync(rentId, User);
 
         return result.Succeeded switch
         {
@@ -57,7 +57,7 @@ public class RentController : ControllerBase
 
     [Authorize]
     [HttpGet("TransportHistory/{transportId}")]
-    public async Task<ActionResult> GetRentHistory(int transportId)
+    public async Task<ActionResult> GetRentHistory(long transportId)
     {
         var result = await _rentService.GetTransportHistoryAsync(transportId, User);
 
@@ -70,9 +70,9 @@ public class RentController : ControllerBase
 
     [Authorize]
     [HttpPost("New/{tranposrtId}")]
-    public async Task<ActionResult> StartRent(int tranposrtId, [FromBody] StartRentRequest request)
+    public async Task<ActionResult> StartRent(long tranposrtId, [FromBody] StartRentRequest request)
     {
-        var result = await _rentService.StartNewRentAsync(tranposrtId, request.RentType, User);
+        var result = await _rentService.RentAsync(tranposrtId, request.RentType, User);
 
         return result.Succeeded switch
         {
@@ -83,7 +83,7 @@ public class RentController : ControllerBase
 
     [Authorize]
     [HttpPost("End/{rentId}")]
-    public async Task<ActionResult> EndRent(int rentId, [FromBody] EndRentRequest request)
+    public async Task<ActionResult> EndRent(long rentId, [FromBody] EndRentRequest request)
     {
         var result = await _rentService.EndRentAsync(rentId, request, User);
 

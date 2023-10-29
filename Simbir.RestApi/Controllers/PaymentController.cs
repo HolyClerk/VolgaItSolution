@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Simbir.Application.Abstractions;
-using Simbir.Application.Other;
 using Simbir.Core.Entities;
 
 namespace Simbir.RestApi.Controllers;
@@ -14,14 +12,11 @@ public class PaymentController : ControllerBase
 {
     private readonly IAccountService _accountService;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IDbContext _context;
 
-    public PaymentController(IAccountService accountService, 
-        IDbContext context,
+    public PaymentController(IAccountService accountService,
         UserManager<ApplicationUser> userManager)
     {
         _accountService = accountService;
-        _context = context;
         _userManager = userManager;
     }
 
@@ -30,33 +25,25 @@ public class PaymentController : ControllerBase
     public async Task<ActionResult> AddMoneyToBalance(int accountId)
     {
         var currentUser = await _accountService.GetUserByClaimsAsync(User);
+        var user = await _userManager.FindByIdAsync(accountId.ToString());
 
-        if (currentUser is null)
+        if (currentUser is null || user is null)
             return BadRequest();
 
-        var isAdministrator = await _context.Administrators.AnyAsync(admin => admin.UserId == currentUser.Id);
-
-        // Если себе
-        if (currentUser.Id == accountId)
+        if (currentUser.Id == user.Id)
         {
             currentUser.Balance += 250_000;
-            await _context.SaveChangesAsync();
+            await _userManager.UpdateAsync(currentUser);
             return Ok();
         }
 
-        // Если юзер - админ
-        if (!isAdministrator)
-            return BadRequest();
-
-        var user = await _userManager.FindByIdAsync(accountId.ToString());
-
-        if (user is not null)
+        if (currentUser.IsAdministrator)
         {
             user.Balance += 250_000;
             await _userManager.UpdateAsync(user);
+            return Ok();
         }
 
-        // if user admin add too
-        return BadRequest();
+        return Unauthorized();
     }
 }

@@ -12,6 +12,8 @@ public interface IAccountService
      
     // SingUp не возвращает Credentials т.к. клиент после этого должен самостоятельно залогиниться, чтобы получить токен
     Task<Result> SignUpAsync(SignUpRequest request);
-    Task<Result> UpdateAsync(UpdateRequest request, ClaimsPrincipal claims);
-    Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? principal);
+    Task<Result> UpdateAsync(UpdateRequest request, ClaimsPrincipal userClaims);
+    Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? userClaims);
+    Task<ApplicationUser?> GetUserByIdAsync(long id);
+    Task<bool> IsAdministrator(ClaimsPrincipal? userClaims);
 }

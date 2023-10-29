@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Simbir.Application.Abstractions;
 using Simbir.Application.Other;
 using Simbir.Core.Entities;
@@ -19,36 +20,58 @@ public class TransportService : ITransportService
         _accountService = accountService;
     }
 
-    public async Task<Result<Transport>> GetTransportAsync(int id)
+    public async Task<List<Transport>> GetInRange(int start, int count)
+    {
+        return await _context.Transports
+            .Where(t => t.Id >= start && t.Id <= count)
+            .ToListAsync();
+    }
+
+    public async Task<Result<Transport>> GetAsync(long id)
     {
         var transport = await _context.Transports.FindAsync(id);
 
         if (transport is null)
-            return Result<Transport>.Failed("Транспорт с id \"{id}\" не найден.");
+            return Result<Transport>.Failed($"Транспорт с id \"{id}\" не найден.");
 
         return Result<Transport>.Success(transport);
     }
 
-    public async Task<Result> AddTransportAsync(AddTransportRequest request, ClaimsPrincipal claims)
+    public async Task<Result> AddAsync(AddTransportRequest request, ClaimsPrincipal userClaims)
     {
-        var applicationUser = _accountService.GetUserByClaimsAsync(claims);
+        var user = await _accountService.GetUserByClaimsAsync(userClaims);
 
-        if (applicationUser is null)
+        if (user is null)
             return Result.Failed();
 
-        var newTransport = CreateTransport(applicationUser.Id, request);
+        var newTransport = CreateTransport(user.Id, request);
         await _context.Transports.AddAsync(newTransport);
         await _context.SaveChangesAsync();
 
         return Result.Success();
     }
 
-    public async Task<Result> UpdateTransportAsync(int transportId, UpdateTransportRequest request, ClaimsPrincipal claims)
+    public async Task<Result> AddAsync(ForceAddTransportRequest request)
     {
-        var applicationUser = _accountService.GetUserByClaimsAsync(claims);
+        var user = await _accountService.GetUserByIdAsync(request.OwnerId);
+
+        if (user is null)
+            return Result.Failed();
+
+        var newTransport = CreateTransport(user.Id, request);
+        await _context.Transports.AddAsync(newTransport);
+        await _context.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdateAsync(long transportId, UpdateTransportRequest request,
+        ClaimsPrincipal userClaims)
+    {
+        var user = await _accountService.GetUserByClaimsAsync(userClaims);
         var transport = await _context.Transports.FindAsync(transportId);
 
-        if (applicationUser is null || transport is null || transport.OwnerId != applicationUser.Id)
+        if (user is null || transport is null || transport.OwnerId != user.Id)
             return Result.Failed();
 
         UpdateTransport(transport, request);
@@ -58,12 +81,40 @@ public class TransportService : ITransportService
         return Result.Success();
     }
 
-    public async Task<Result> RemoveTransportAsync(int id, ClaimsPrincipal claims)
+    public async Task<Result> ForceUpdateAsync(long transportId, ForceUpdateTransportRequest request)
     {
-        var applicationUser = _accountService.GetUserByClaimsAsync(claims);
+        var user = await _accountService.GetUserByIdAsync(request.OwnerId);
+        var transport = await _context.Transports.FindAsync(transportId);
+
+        if (user is null || transport is null || transport.OwnerId != user.Id)
+            return Result.Failed();
+
+        UpdateTransport(transport, request);
+        _context.Transports.Update(transport);
+        await _context.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> RemoveAsync(long id, ClaimsPrincipal userClaims)
+    {
+        var user = await _accountService.GetUserByClaimsAsync(userClaims);
         var transport = await _context.Transports.FindAsync(id);
 
-        if (applicationUser is null || transport is null || transport.OwnerId != applicationUser.Id)
+        if (user is null || transport is null || transport.OwnerId != user.Id)
+            return Result.Failed();
+
+        _context.Transports.Remove(transport);
+        await _context.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ForceRemoveAsync(long id)
+    {
+        var transport = await _context.Transports.FindAsync(id);
+
+        if (transport is null)
             return Result.Failed();
 
         _context.Transports.Remove(transport);
@@ -87,9 +138,15 @@ public class TransportService : ITransportService
 
         transport.MinutePrice = request.MinutePrice;
         transport.DayPrice = request.DayPrice;
+
+        if (request is ForceUpdateTransportRequest)
+        {
+            transport.OwnerId = (request as ForceUpdateTransportRequest)!.OwnerId;
+            transport.TransportType = (request as ForceUpdateTransportRequest)!.TransportType;
+        }
     }
 
-    private static Transport CreateTransport(int ownerId, AddTransportRequest request) => new Transport
+    private static Transport CreateTransport(long ownerId, AddTransportRequest request) => new()
     {
         OwnerId = ownerId,
 
@@ -108,4 +165,7 @@ public class TransportService : ITransportService
         MinutePrice = request.MinutePrice,
         DayPrice = request.DayPrice,
     };
+
+    private bool IsOwnerOrAdministrator(Transport transport, ApplicationUser user)
+        => transport.OwnerId == user.Id && user.IsAdministrator;
 }

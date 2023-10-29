@@ -7,8 +7,12 @@ namespace Simbir.Application.Abstractions;
 
 public interface ITransportService
 {
-    Task<Result<Transport>> GetTransportAsync(int id);
-    Task<Result> AddTransportAsync(AddTransportRequest request, ClaimsPrincipal claims);
-    Task<Result> UpdateTransportAsync(int transportId, UpdateTransportRequest request, ClaimsPrincipal claims);
-    Task<Result> RemoveTransportAsync(int id, ClaimsPrincipal claims);
+    Task<Result<Transport>> GetAsync(long id);
+    Task<Result> AddAsync(AddTransportRequest request, ClaimsPrincipal userClaims);
+    Task<Result> AddAsync(ForceAddTransportRequest request);
+    Task<Result> UpdateAsync(long transportId, UpdateTransportRequest request, ClaimsPrincipal userClaims);
+    Task<Result> ForceUpdateAsync(long transportId, ForceUpdateTransportRequest request);
+    Task<Result> RemoveAsync(long id, ClaimsPrincipal userClaims);
+    Task<Result> ForceRemoveAsync(long id);
+    Task<List<Transport>> GetInRange(int start, int count);
 }

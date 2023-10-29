@@ -105,12 +105,25 @@ public class AccountService : IAccountService
         return Result<ApplicationUser>.Success(user);
     }
 
-    public async Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? principal)
+    public async Task<ApplicationUser?> GetUserByClaimsAsync(ClaimsPrincipal? claims)
     {
-        if (principal is null || principal.Identity is null)
+        if (claims is null || claims.Identity is null)
             return null;
 
-        var idClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        var idClaim = claims.FindFirst(ClaimTypes.NameIdentifier);
         return await _userManager.FindByIdAsync(idClaim!.Value);
+    }
+
+    public async Task<ApplicationUser?> GetUserByIdAsync(long id)
+        => await _userManager.FindByIdAsync(id.ToString());
+
+    public async Task<bool> IsAdministrator(ClaimsPrincipal? userClaims)
+    {
+        var user = await GetUserByClaimsAsync(userClaims);
+
+        if (user is null || !user.IsAdministrator)
+            return false;
+
+        return true;
     }
 }

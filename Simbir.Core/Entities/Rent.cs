@@ -6,13 +6,13 @@ namespace Simbir.Core.Entities;
 public class Rent 
 {
     [Key]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     [ForeignKey(nameof(Renter))]
     public long RenterId { get; set; }
 
     [ForeignKey(nameof(RentedTransport))]
-    public int TransportId { get; set; }
+    public long TransportId { get; set; }
 
     public string Type { get; set; }
     public bool IsRentEnded { get; set; }
