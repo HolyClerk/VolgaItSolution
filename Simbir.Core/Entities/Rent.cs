@@ -9,7 +9,7 @@ public class Rent
     public int Id { get; set; }
 
     [ForeignKey(nameof(Renter))]
-    public int RenterId { get; set; }
+    public long RenterId { get; set; }
 
     [ForeignKey(nameof(RentedTransport))]
     public int TransportId { get; set; }

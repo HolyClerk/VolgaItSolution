@@ -42,7 +42,7 @@ public class AccountService : IAccountService
             UserName = request.Username,
         };
 
-        var existingUser = _userManager.FindByNameAsync(request.Username);
+        var existingUser = await _userManager.FindByNameAsync(request.Username);
 
         if (existingUser is not null)
             return Result.Failed("Пользователь с таким именем уже существует.");

@@ -37,7 +37,7 @@ public class RentService : IRentService
                 // Координата транспорта
                 var transportCoordinate = new GeoCoordinate(transport.Latitude, transport.Longitude); 
                 var distance = centerCoordinate.GetDistanceTo(transportCoordinate);
-                return distance <= request.Radius * 1000; // Перевод в метры, если казано в км
+                return distance <= request.Radius * 1000; // Перевод в метры, если указано в км
             })
             .ToList();
 

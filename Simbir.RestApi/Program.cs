@@ -1,11 +1,35 @@
+using Microsoft.AspNetCore.Identity;
+using Simbir.Application.Abstractions;
+using Simbir.Application.Other;
+using Simbir.Application.Services;
+using Simbir.Core.Entities;
+using Simbir.Infrastructure.Context;
+using Simbir.Infrastructure.Implementations;
+using Simbir.RestApi.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Extensions
+builder.Services.AddModifiedSwaggerGen();
+builder.Services.AddPostgresDataBaseContext(builder);
+builder.Services.AddJwtAuthentication(builder);
+
+// Services
+builder.Services
+    .AddScoped<ITokenService, TokenService>()
+    .AddScoped<IAccountService, AccountService>()
+    .AddScoped<IRentService, RentService>()
+    .AddScoped<ITransportService, TransportService>();
+
+// Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<long>>()
+    .AddEntityFrameworkStores<ApplicationContext>()
+    .AddUserManager<UserManager<ApplicationUser>>()
+    .AddSignInManager<SignInManager<ApplicationUser>>();
 
 var app = builder.Build();
 

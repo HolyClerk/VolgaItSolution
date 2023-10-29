@@ -9,7 +9,7 @@ public class Transport
     public int Id { get; set; }
 
     [ForeignKey(nameof(Owner))]
-    public int OwnerId { get; set; }
+    public long OwnerId { get; set; }
 
     public bool CanBeRented { get; set; }
 
