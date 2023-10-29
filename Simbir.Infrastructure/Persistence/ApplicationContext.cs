@@ -15,6 +15,7 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser, IdentityRol
     }
 
     public DbSet<ApplicationUser> Users { get; private set; }
+    public DbSet<Rent> Rents { get; private set; }
     public DbSet<Administrator> Administrators { get; private set; }
     public DbSet<Transport> Transports { get; private set; }
 }

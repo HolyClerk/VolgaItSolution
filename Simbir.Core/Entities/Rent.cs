@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Simbir.Core.Entities;
 
-public class Rent
+public class Rent 
 {
     [Key]
     public int Id { get; set; }

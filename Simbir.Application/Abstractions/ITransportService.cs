@@ -3,7 +3,7 @@ using Simbir.Core.Entities;
 using Simbir.Core.Requests;
 using Simbir.Core.Results;
 
-namespace Simbir.Application.Services;
+namespace Simbir.Application.Abstractions;
 
 public interface ITransportService
 {

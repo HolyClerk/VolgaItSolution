@@ -2,4 +2,7 @@
 
 namespace Simbir.Core.Entities;
 
-public class ApplicationUser : IdentityUser<long> { }
+public class ApplicationUser : IdentityUser<long>
+{
+    public float Balance { get; set; }
+}

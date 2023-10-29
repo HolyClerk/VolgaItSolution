@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Simbir.Application.Services;
+using Simbir.Application.Abstractions;
 using Simbir.Core.Requests;
 
 namespace Simbir.RestApi.Controllers;
@@ -23,7 +23,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result.Succeeded),
+            true => Ok(result),
             false => BadRequest(result.Errors)
         };
     }
@@ -36,7 +36,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result.Succeeded),
+            true => Ok(result),
             false => BadRequest(result.Errors)
         };
     }
@@ -49,7 +49,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result.Succeeded),
+            true => Ok(result),
             false => BadRequest(result.Errors)
         };
     }
@@ -62,7 +62,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result.Succeeded),
+            true => Ok(result),
             false => BadRequest(result.Errors)
         };
     }
