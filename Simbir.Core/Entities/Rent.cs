@@ -14,9 +14,21 @@ public class Rent
     [ForeignKey(nameof(RentedTransport))]
     public long TransportId { get; set; }
 
-    public string Type { get; set; }
+    public RentType Type { get; set; }
     public bool IsRentEnded { get; set; }
+
+    public DateTime RentStarted { get; set; }
+    public DateTime? RentEnded { get; set; }
+
+    public double? FinalPrice { get; set; }
+    public double PriceOfUnit { get; set; }
 
     public virtual ApplicationUser Renter { get; set; }
     public virtual Transport RentedTransport { get; set; }
+}
+
+public enum RentType
+{
+    Days,
+    Minutes
 }

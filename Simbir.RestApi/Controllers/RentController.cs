@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Simbir.Application.Abstractions;
+using Simbir.Core.Entities;
 using Simbir.Core.Requests;
 
 namespace Simbir.RestApi.Controllers;
@@ -17,14 +18,14 @@ public class RentController : ControllerBase
     }
 
     [HttpGet("Transport")]
-    public ActionResult GetRentableTransport(double latitude, double longitude, double radius, string type)
+    public ActionResult GetRentableTransport(double latitude, double longitude, double radius, string transportType)
     {
-        var request = new GetRentableRequest(latitude, longitude, radius, type);
+        var request = new GetRentableRequest(latitude, longitude, radius, transportType);
         var result = _rentService.GetRentableTransport(request);
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
@@ -37,7 +38,7 @@ public class RentController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
@@ -50,7 +51,7 @@ public class RentController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
@@ -63,20 +64,20 @@ public class RentController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
 
     [Authorize]
     [HttpPost("New/{tranposrtId}")]
-    public async Task<ActionResult> StartRent(long tranposrtId, [FromBody] StartRentRequest request)
+    public async Task<ActionResult> StartRent(long tranposrtId, RentType rentType)
     {
-        var result = await _rentService.RentAsync(tranposrtId, request.RentType, User);
+        var result = await _rentService.RentAsync(tranposrtId, rentType, User);
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
@@ -89,7 +90,7 @@ public class RentController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }

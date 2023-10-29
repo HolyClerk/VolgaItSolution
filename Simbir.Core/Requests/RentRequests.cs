@@ -1,8 +1,9 @@
-﻿namespace Simbir.Core.Requests;
+﻿using Simbir.Core.Entities;
 
-public record GetRentableRequest(double Latitude, double Longitude, double Radius, string Type);
+namespace Simbir.Core.Requests;
+
+public record GetRentableRequest(double Latitude, double Longitude, double Radius, string TransportType);
 
 public record EndRentRequest (double Latitude, double Longitude);
-public record StartRentRequest (string RentType);
 
-public record ForceUpdateRentRequest (long TransportId, long UserId, string RentType);
+public record ForceRentRequest (long TransportId, long UserId, DateTime TimeStart, DateTime? TimeEnd, double PriceOfUnit, RentType RentType, double? FinalPrice);

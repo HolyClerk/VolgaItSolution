@@ -18,9 +18,11 @@ public interface IRentService
     Task<Result<List<Rent>>> GetTransportHistoryAsync(long transportId, ClaimsPrincipal claims);
     Task<List<Rent>> ForceGetTransportHistoryAsync(long transportId);
 
-    Task<Result> ForceUpdateAsync(long rentId, ForceUpdateRentRequest request);
+    Task<Result> ForceUpdateAsync(long rentId, ForceRentRequest request);
 
-    Task<Result> RentAsync(long transportId, string rentType, ClaimsPrincipal renterClaims);
+    Task<Result> RentAsync(long transportId, RentType rentType, ClaimsPrincipal renterClaims);
+    Task<Result> ForceRentAsync(ForceRentRequest request);
+
     Task<Result> EndRentAsync(long rentId, EndRentRequest request, ClaimsPrincipal renterClaims);
     Task<Result> ForceEndRentAsync(long rentId, EndRentRequest request);
 

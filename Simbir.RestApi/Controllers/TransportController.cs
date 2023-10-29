@@ -23,7 +23,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
@@ -36,7 +36,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
@@ -49,7 +49,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
@@ -62,7 +62,7 @@ public class TransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }

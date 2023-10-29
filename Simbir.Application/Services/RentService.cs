@@ -15,7 +15,7 @@ public class RentService : IRentService
     private readonly IDbContext _context;
     private readonly IAccountService _accountService;
 
-    public RentService(IDbContext context, 
+    public RentService(IDbContext context,
         IAccountService accountService)
     {
         _context = context;
@@ -37,13 +37,14 @@ public class RentService : IRentService
                     return false;
                 }
 
-                if (request.Type.ToLower() != transport.TransportType && request.Type.ToLower() != "all")
+                if (request.TransportType.ToLower() != transport.TransportType
+                    && request.TransportType.ToLower() != "all")
                 {
                     return false;
                 }
 
                 // Координата транспорта
-                var transportCoordinate = new GeoCoordinate(transport.Latitude, transport.Longitude); 
+                var transportCoordinate = new GeoCoordinate(transport.Latitude, transport.Longitude);
                 var distance = centerCoordinate.GetDistanceTo(transportCoordinate);
                 return distance <= request.Radius;
             })
@@ -64,7 +65,7 @@ public class RentService : IRentService
             return Result<Rent>.Failed("Запрошеная аренда не найдена или вы не являетесь арендатором/владельцем транспорта");
         }
 
-        if (rent.RenterId == requester.Id|| rent.RentedTransport.OwnerId == requester.Id)
+        if (rent.RenterId == requester.Id || rent.RentedTransport.OwnerId == requester.Id)
         {
             return Result<Rent>.Success(rent);
         }
@@ -121,27 +122,27 @@ public class RentService : IRentService
             .Where(r => r.TransportId == transportId)
             .ToListAsync();
     }
-    public async Task<Result> ForceUpdateAsync(long rentId, ForceUpdateRentRequest request)
+    public async Task<Result> ForceUpdateAsync(long rentId, ForceRentRequest request)
     {
         var rent = await _context.Rents
             .Include(rent => rent.RentedTransport)
             .FirstOrDefaultAsync(rent => rent.Id == rentId);
 
-        if (rent is null)
+        var renter = await _accountService.GetUserByIdAsync(request.UserId);
+        var transport = await _context.Transports.FindAsync(request.TransportId);
+
+        if (rent is null || renter is null || transport is null)
         {
             return Result.Failed();
         }
 
-        rent.TransportId = request.TransportId;
-        rent.RenterId = request.UserId;
-        rent.Type = request.RentType;
+        ForceUpdateRent(rent, request);
 
         await _context.SaveChangesAsync();
-
         return Result.Success();
     }
 
-    public async Task<Result> RentAsync(long transportId, string rentType, ClaimsPrincipal renterClaims)
+    public async Task<Result> RentAsync(long transportId, RentType rentType, ClaimsPrincipal renterClaims)
     {
         var renter = await _accountService.GetUserByClaimsAsync(renterClaims);
         var transport = await _context.Transports.FindAsync(transportId);
@@ -153,13 +154,38 @@ public class RentService : IRentService
 
         await _context.Rents.AddAsync(new Rent()
         {
+            RentStarted = DateTime.UtcNow,
+            PriceOfUnit = rentType is RentType.Minutes ? (double)transport.MinutePrice! : (double)transport.DayPrice!,
             TransportId = transportId,
             RenterId = renter.Id,
             @Type = rentType,
         });
 
         await _context.SaveChangesAsync();
+        return Result.Success();
+    }
 
+    public async Task<Result> ForceRentAsync(ForceRentRequest request)
+    {
+        var renter = await _accountService.GetUserByIdAsync(request.UserId);
+        var transport = await _context.Transports.FindAsync(request.TransportId);
+
+        if (renter is null || transport is null)
+            return Result.Failed();
+
+        await _context.Rents.AddAsync(new Rent()
+        {
+            RentStarted = DateTime.UtcNow,
+            RentEnded = request.TimeEnd,
+            PriceOfUnit = request.PriceOfUnit,
+            TransportId = transport.Id,
+            RenterId = renter.Id,
+            @Type = request.RentType,
+            IsRentEnded = request.TimeEnd.HasValue,
+            FinalPrice = request.FinalPrice,
+        });
+
+        await _context.SaveChangesAsync();
         return Result.Success();
     }
 
@@ -176,10 +202,7 @@ public class RentService : IRentService
             return Result.Failed();
         }
 
-        rent.IsRentEnded = true;
-        rent.RentedTransport.CanBeRented = true;
-        rent.RentedTransport.Latitude = request.Latitude;
-        rent.RentedTransport.Longitude = request.Longitude;
+        CloseRent(rent, request);
 
         await _context.SaveChangesAsync();
         return Result.Success();
@@ -196,10 +219,7 @@ public class RentService : IRentService
             return Result.Failed("Аренда не найдена");
         }
 
-        rent.IsRentEnded = true;
-        rent.RentedTransport.CanBeRented = true;
-        rent.RentedTransport.Latitude = request.Latitude;
-        rent.RentedTransport.Longitude = request.Longitude;
+        CloseRent(rent, request);
 
         await _context.SaveChangesAsync();
         return Result.Success();
@@ -218,5 +238,51 @@ public class RentService : IRentService
         await _context.SaveChangesAsync();
 
         return Result.Success();
+    }
+
+    private static void CloseRent(Rent rent, EndRentRequest request)
+    {
+        rent.IsRentEnded = true;
+        rent.RentEnded = DateTime.UtcNow;
+        rent.RentedTransport.CanBeRented = true;
+        rent.RentedTransport.Latitude = request.Latitude;
+        rent.RentedTransport.Longitude = request.Longitude;
+
+        rent.FinalPrice = rent.Type switch
+        {
+            RentType.Minutes => CalculateRentCostByMinutes(rent.PriceOfUnit, rent.RentStarted, DateTime.UtcNow),
+            RentType.Days => CalculateRentCostByDays(rent.PriceOfUnit, rent.RentStarted, DateTime.UtcNow),
+            _ => CalculateRentCostByMinutes(rent.PriceOfUnit, rent.RentStarted, DateTime.UtcNow),
+        };
+    }
+
+    private static double CalculateRentCostByMinutes(double pricePerMinute, DateTime rentStart, DateTime rentEnd)
+    {
+        TimeSpan rentalDuration = rentEnd - rentStart; 
+        var totalCost = pricePerMinute * rentalDuration.TotalMinutes; 
+        return totalCost;
+    }
+
+    private static double CalculateRentCostByDays(double pricePerDay, DateTime rentStart, DateTime rentEnd)
+    {
+        TimeSpan rentalDuration = rentStart - rentEnd; 
+        var totalDays = Math.Ceiling(rentalDuration.TotalDays);
+        var totalCost = pricePerDay * totalDays;
+
+        if (totalDays < 1)
+            return pricePerDay;
+
+        return totalCost;
+    }
+
+    private static void ForceUpdateRent(Rent rent, ForceRentRequest request)
+    {
+        rent.TransportId = request.TransportId;
+        rent.RenterId = request.UserId;
+        rent.RentStarted = request.TimeStart;
+        rent.RentEnded = request.TimeEnd;
+        rent.PriceOfUnit = request.PriceOfUnit;
+        rent.Type = request.RentType;
+        rent.FinalPrice = request.FinalPrice;
     }
 }

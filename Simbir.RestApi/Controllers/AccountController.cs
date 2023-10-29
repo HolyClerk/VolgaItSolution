@@ -40,7 +40,7 @@ public class AccountController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
@@ -55,7 +55,7 @@ public class AccountController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
@@ -71,7 +71,7 @@ public class AccountController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }

@@ -41,7 +41,7 @@ public class AdminTransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(result.Value),
             false => BadRequest(result.Errors)
         };
     }
@@ -57,7 +57,7 @@ public class AdminTransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
@@ -73,7 +73,7 @@ public class AdminTransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
@@ -89,7 +89,7 @@ public class AdminTransportController : ControllerBase
 
         return result.Succeeded switch
         {
-            true => Ok(result),
+            true => Ok(),
             false => BadRequest(result.Errors)
         };
     }
