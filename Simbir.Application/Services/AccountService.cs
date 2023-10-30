@@ -6,6 +6,7 @@ using Simbir.Core.DTO;
 using Simbir.Core.Entities;
 using Simbir.Core.AccountRequests;
 using Simbir.Core.Results;
+using Microsoft.EntityFrameworkCore;
 
 namespace Simbir.Application.Services;
 
@@ -22,6 +23,13 @@ public class AccountService : IAccountService
         _userManager = userManager;
         _context = context;
         _tokenService = tokenService;
+    }
+
+    public async Task<List<ApplicationUser>> GetInRangeAsync(int start, int count)
+    {
+        return await _context.Users
+           .Where(t => t.Id >= start && t.Id <= count)
+           .ToListAsync();
     }
 
     public async Task<Result<Credentials>> SignInAsync(SignInRequest request)
@@ -55,12 +63,40 @@ public class AccountService : IAccountService
         return Result.Success();
     }
 
+    public async Task<Result> ForceCreateAccountAsync(ForceAccountRequest request)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = request.Username,
+            IsAdministrator = request.IsAdministrator,
+            Balance = request.Balance,
+        };
+
+        var existingUser = await _userManager.FindByNameAsync(request.Username);
+
+        if (existingUser is not null)
+        {
+            return Result.Failed("Пользователь с таким именем уже существует.");
+        }
+
+        var result = await _userManager.CreateAsync(user, request.Password);
+
+        if (!result.Succeeded)
+        {
+            return Result.Failed(result.Errors.Select(x => x.Description).ToArray());
+        }
+
+        return Result.Success();
+    }
+
     public async Task<Result> UpdateAsync(UpdateRequest request, ClaimsPrincipal claims)
     {
         var applicationUser = await GetUserByClaimsAsync(claims);
 
         if (applicationUser is null)
+        {
             return Result.Failed("Непредвиденная ошибка. Claims не найдены.");
+        }
 
         var hashedPassword = _userManager.PasswordHasher.HashPassword(applicationUser, request.Password);
 
@@ -70,8 +106,49 @@ public class AccountService : IAccountService
         var identityResult = await _userManager.UpdateAsync(applicationUser);
 
         if (!identityResult.Succeeded)
+        {
             return Result.Failed(identityResult.Errors.Select(x => x.Description).ToArray());
+        }
 
+        return Result.Success();
+    }
+
+    public async Task<Result> ForceUpdateAsync(long id, ForceAccountRequest request)
+    {
+        var applicationUser = await GetUserByIdAsync(id);
+
+        if (applicationUser is null)
+        {
+            return Result.Failed("Пользователь не найден.");
+        }
+
+        var hashedPassword = _userManager.PasswordHasher.HashPassword(applicationUser, request.Password);
+
+        applicationUser.UserName = request.Username;
+        applicationUser.PasswordHash = hashedPassword;
+        applicationUser.IsAdministrator = request.IsAdministrator;
+        applicationUser.Balance = request.Balance;
+
+        var identityResult = await _userManager.UpdateAsync(applicationUser);
+
+        if (!identityResult.Succeeded)
+        {
+            return Result.Failed(identityResult.Errors.Select(x => x.Description).ToArray());
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ForceRemoveAccount(long id)
+    {
+        var user = await GetUserByIdAsync(id);
+
+        if (user is null)
+        {
+            return Result.Failed("Пользователь не найден.");
+        }
+
+        await _userManager.DeleteAsync(user);
         return Result.Success();
     }
 
