@@ -23,7 +23,7 @@ public static class SwaggerExtensions
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+                Description = "Сервис JWT авторизации использует Bearer схему. \r\n\r\n Введите 'Bearer' [пробел] и после введите ваш JWT-токен. \r\n\r\nПример: \"Bearer 1safsfsdfdfd\"",
             });
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
