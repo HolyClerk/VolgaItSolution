@@ -5,7 +5,6 @@ namespace Simbir.Application.Other;
 
 public interface IDbContext
 {
-    DbSet<Administrator> Administrators { get; }
     DbSet<ApplicationUser> Users { get; }
     DbSet<Transport> Transports { get; }
     DbSet<Rent> Rents { get; }
