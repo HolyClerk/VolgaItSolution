@@ -27,6 +27,12 @@ public class AdminTransportController : ControllerBase
             return Unauthorized();
 
         var result = await _transportService.GetInRange(start, count);
+
+        if (transportType.ToLower() == "all")
+        {
+            return Ok(result);
+        }
+
         return Ok(result.Where(x => x.TransportType == transportType));
     }
 
