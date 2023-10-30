@@ -152,6 +152,11 @@ public class RentService : IRentService
             return Result.Failed("Транспорт не был найден, или вы являетесь его владельцем");
         }
 
+        if (transport.CanBeRented is false)
+        {
+            return Result.Failed("Транспорт уже арендован");
+        }
+
         transport.CanBeRented = false;
 
         await _context.Rents.AddAsync(new Rent()
