@@ -75,14 +75,4 @@ public class AccountController : ControllerBase
             false => BadRequest(result.Errors)
         };
     }
-
-    /*    
-        private ActionResult HandleResult<T>(Result<T> result)
-        {
-            return result.Succeeded switch
-            {
-                true => Ok(result.Succeeded),
-                false => BadRequest(result.Errors)
-            };
-        }*/
 }

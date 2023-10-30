@@ -63,6 +63,9 @@ public class AdminRentController : ControllerBase
     [HttpPost("Rent")]
     public async Task<ActionResult> CreateRent([FromBody] ForceRentRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 
@@ -75,6 +78,9 @@ public class AdminRentController : ControllerBase
     [HttpPost("Rent/End/{rentId}")]
     public async Task<ActionResult> EndRent(long rentId, [FromBody] EndRentRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 
@@ -87,6 +93,9 @@ public class AdminRentController : ControllerBase
     [HttpPut("Rent/{rentId}")]
     public async Task<ActionResult> UpdateRent(long rentId, [FromBody] ForceRentRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 

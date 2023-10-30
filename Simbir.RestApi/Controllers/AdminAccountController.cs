@@ -47,8 +47,11 @@ public class AdminAccountController : ControllerBase
 
     // Читать Readme.md
     [HttpPost]
-    public async Task<ActionResult> CreateAccount(ForceAccountRequest request)
+    public async Task<ActionResult> CreateAccount([FromBody] ForceAccountRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var result = await _accountService.ForceCreateAccountAsync(request);
 
         return result.Succeeded switch
@@ -60,8 +63,11 @@ public class AdminAccountController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateAccount(long id, ForceAccountRequest request)
+    public async Task<ActionResult> UpdateAccount(long id, [FromBody] ForceAccountRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 

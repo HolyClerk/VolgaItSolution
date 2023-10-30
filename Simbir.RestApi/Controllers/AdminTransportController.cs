@@ -50,6 +50,9 @@ public class AdminTransportController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> AddTransport([FromBody] ForceAddTransportRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 
@@ -66,6 +69,9 @@ public class AdminTransportController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateTransport([FromBody] ForceUpdateTransportRequest request, int id)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 

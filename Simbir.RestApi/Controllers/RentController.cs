@@ -86,6 +86,9 @@ public class RentController : ControllerBase
     [HttpPost("End/{rentId}")]
     public async Task<ActionResult> EndRent(long rentId, [FromBody] EndRentRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var result = await _rentService.EndRentAsync(rentId, request, User);
 
         return result.Succeeded switch

@@ -30,8 +30,11 @@ public class TransportController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult> AddTransport(AddTransportRequest request)
+    public async Task<ActionResult> AddTransport([FromBody] AddTransportRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var result = await _transportService.AddAsync(request, User);
 
         return result.Succeeded switch
@@ -43,8 +46,11 @@ public class TransportController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateTransport(long id, UpdateTransportRequest request)
+    public async Task<ActionResult> UpdateTransport(long id, [FromBody] UpdateTransportRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var result = await _transportService.UpdateAsync(id, request, User);
 
         return result.Succeeded switch
