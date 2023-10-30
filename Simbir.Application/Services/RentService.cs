@@ -184,7 +184,7 @@ public class RentService : IRentService
 
         await _context.Rents.AddAsync(new Rent()
         {
-            RentStarted = DateTime.UtcNow,
+            RentStarted = request.TimeStart,
             RentEnded = request.TimeEnd,
             PriceOfUnit = request.PriceOfUnit,
             TransportId = transport.Id,
@@ -293,5 +293,6 @@ public class RentService : IRentService
         rent.PriceOfUnit = request.PriceOfUnit;
         rent.Type = request.RentType;
         rent.FinalPrice = request.FinalPrice;
+        rent.IsRentEnded = request.TimeEnd.HasValue;
     }
 }
