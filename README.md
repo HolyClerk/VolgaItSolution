@@ -1,5 +1,6 @@
 # Решение задания на полуфинал по дисицплине "Backend разработка Web API"
 ## Информация
+- Ссылка на гитхаб: https://github.com/HolyClerk/VolgaItSolution
 - Решение выполнено на платформе ASP.NET Core 7.0
 - Строка подключения к базе данных PostgreSQL находится в файле appsettings.json (папка Simbir.RestApi). Строка "PgConnection".
 
