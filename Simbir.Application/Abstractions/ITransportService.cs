@@ -9,7 +9,7 @@ public interface ITransportService
 {
     Task<Result<Transport>> GetAsync(long id);
     Task<Result> AddAsync(AddTransportRequest request, ClaimsPrincipal userClaims);
-    Task<Result> AddAsync(ForceAddTransportRequest request);
+    Task<Result> ForceAddAsync(ForceAddTransportRequest request);
     Task<Result> UpdateAsync(long transportId, UpdateTransportRequest request, ClaimsPrincipal userClaims);
     Task<Result> ForceUpdateAsync(long transportId, ForceUpdateTransportRequest request);
     Task<Result> RemoveAsync(long id, ClaimsPrincipal userClaims);

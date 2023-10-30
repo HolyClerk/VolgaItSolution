@@ -90,7 +90,7 @@ public class RentService : IRentService
 
         if (requester is null)
         {
-            return Result<List<Rent>>.Failed();
+            return Result<List<Rent>>.Failed("Непредвиденная ошибка", "Claims не найдены");
         }
 
         var rents = _context.Rents.Where(rent => rent.RenterId == requester.Id);
@@ -110,7 +110,7 @@ public class RentService : IRentService
         var transport = await _context.Transports.FindAsync(transportId);
 
         if (requester is null || transport is null || transport.OwnerId != requester.Id)
-            return Result<List<Rent>>.Failed();
+            return Result<List<Rent>>.Failed("Транспорт не был найден или вы не являетесь его владельцем");
 
         var rents = _context.Rents.Where(rent => rent.TransportId == transport.Id);
         return Result<List<Rent>>.Success(await rents.ToListAsync());
@@ -133,7 +133,7 @@ public class RentService : IRentService
 
         if (rent is null || renter is null || transport is null)
         {
-            return Result.Failed();
+            return Result.Failed("Аренда, арендодатель или транспорт не были найдены");
         }
 
         ForceUpdateRent(rent, request);
@@ -148,7 +148,9 @@ public class RentService : IRentService
         var transport = await _context.Transports.FindAsync(transportId);
 
         if (renter is null || transport is null || renter.Id == transport.OwnerId)
-            return Result.Failed();
+        {
+            return Result.Failed("Транспорт не был найден, или вы являетесь его владельцем");
+        }
 
         transport.CanBeRented = false;
 
@@ -171,7 +173,9 @@ public class RentService : IRentService
         var transport = await _context.Transports.FindAsync(request.TransportId);
 
         if (renter is null || transport is null)
-            return Result.Failed();
+        {
+            return Result.Failed("Аренда или арендатель не были найдены");
+        }
 
         await _context.Rents.AddAsync(new Rent()
         {
@@ -199,7 +203,7 @@ public class RentService : IRentService
 
         if (renter is null || rent is null || rent.RenterId != renter.Id)
         {
-            return Result.Failed();
+            return Result.Failed("Аренда не была найдена или вы не являетесь арендателем");
         }
 
         CloseRent(rent, request);

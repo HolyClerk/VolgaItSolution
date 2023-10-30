@@ -32,7 +32,9 @@ public class TransportService : ITransportService
         var transport = await _context.Transports.FindAsync(id);
 
         if (transport is null)
+        { 
             return Result<Transport>.Failed($"Транспорт с id \"{id}\" не найден.");
+        }
 
         return Result<Transport>.Success(transport);
     }
@@ -42,7 +44,9 @@ public class TransportService : ITransportService
         var user = await _accountService.GetUserByClaimsAsync(userClaims);
 
         if (user is null)
-            return Result.Failed();
+        {
+            return Result.Failed("Непредвиденная ошибка", "Claims не были найдены");
+        }
 
         var newTransport = CreateTransport(user.Id, request);
         await _context.Transports.AddAsync(newTransport);
@@ -51,12 +55,14 @@ public class TransportService : ITransportService
         return Result.Success();
     }
 
-    public async Task<Result> AddAsync(ForceAddTransportRequest request)
+    public async Task<Result> ForceAddAsync(ForceAddTransportRequest request)
     {
         var user = await _accountService.GetUserByIdAsync(request.OwnerId);
 
         if (user is null)
-            return Result.Failed();
+        {
+            return Result.Failed($"Пользователь с айди \"{request.OwnerId}\" не был найден");
+        }
 
         var newTransport = CreateTransport(user.Id, request);
         await _context.Transports.AddAsync(newTransport);
@@ -72,7 +78,9 @@ public class TransportService : ITransportService
         var transport = await _context.Transports.FindAsync(transportId);
 
         if (user is null || transport is null || transport.OwnerId != user.Id)
-            return Result.Failed();
+        {
+            return Result.Failed("Транспорт не был найден или вы не являетесь его владельцем.");
+        }
 
         UpdateTransport(transport, request);
         _context.Transports.Update(transport);
@@ -86,8 +94,10 @@ public class TransportService : ITransportService
         var user = await _accountService.GetUserByIdAsync(request.OwnerId);
         var transport = await _context.Transports.FindAsync(transportId);
 
-        if (user is null || transport is null || transport.OwnerId != user.Id)
-            return Result.Failed();
+        if (user is null || transport is null)
+        {
+            return Result.Failed("Транспорт или пользователь не были найдены");
+        }
 
         UpdateTransport(transport, request);
         _context.Transports.Update(transport);
@@ -102,7 +112,9 @@ public class TransportService : ITransportService
         var transport = await _context.Transports.FindAsync(id);
 
         if (user is null || transport is null || transport.OwnerId != user.Id)
-            return Result.Failed();
+        {
+            return Result.Failed("Транспорт не был найден или вы не являетесь его владельцем");
+        }
 
         _context.Transports.Remove(transport);
         await _context.SaveChangesAsync();
@@ -115,7 +127,9 @@ public class TransportService : ITransportService
         var transport = await _context.Transports.FindAsync(id);
 
         if (transport is null)
-            return Result.Failed();
+        {
+            return Result.Failed("Транспорт не был найден");
+        }
 
         _context.Transports.Remove(transport);
         await _context.SaveChangesAsync();

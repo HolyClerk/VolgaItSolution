@@ -53,7 +53,7 @@ public class AdminTransportController : ControllerBase
         if (!await _accountService.IsAdministrator(User))
             return Unauthorized();
 
-        var result = await _transportService.AddAsync(request);
+        var result = await _transportService.ForceAddAsync(request);
 
         return result.Succeeded switch
         {

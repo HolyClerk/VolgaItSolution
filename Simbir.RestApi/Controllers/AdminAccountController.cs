@@ -75,7 +75,7 @@ public class AdminAccountController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("{id}")]
+    [HttpDelete("{id}")]
     public async Task<ActionResult> RemoveAccount(long id)
     {
         if (!await _accountService.IsAdministrator(User))

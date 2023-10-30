@@ -37,7 +37,9 @@ public class AccountService : IAccountService
         var validationResult = await ValidateSignInAsync(request);
 
         if (!validationResult.Succeeded)
+        {
             return Result<Credentials>.Failed(validationResult.Errors);
+        }
 
         var credentials = CreateToken(validationResult.Value);
         return Result<Credentials>.Success(credentials);
@@ -53,12 +55,16 @@ public class AccountService : IAccountService
         var existingUser = await _userManager.FindByNameAsync(request.Username);
 
         if (existingUser is not null)
+        {
             return Result.Failed("Пользователь с таким именем уже существует.");
+        }
 
         var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
+        {
             return Result.Failed(result.Errors.Select(x => x.Description).ToArray());
+        }
 
         return Result.Success();
     }
